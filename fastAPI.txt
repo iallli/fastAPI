@@ -17,6 +17,15 @@ pip install "uvicorn[standard]"
 Step: 4
 Create a "main.py" file in which we define our;
 1:	"FastAPI-app instance{app=FastAPI()}" 
-2:	Define routes 
-3:	Run the project.
+2:	Define APIs 
+3:	Run the Server.
 uvicorn main:app --reload
+
+
+Step: 5
+git init
+create a .gitignore file
+git add .
+git commit -m "first-commit"
+publish on git
+
