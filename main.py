@@ -1,19 +1,17 @@
 from fastapi import FastAPI, Query, Depends
-from typing import Union,Optional,List
-from pydantic import BaseModel
-from database import Engine, SessionLocal, Base
-from sqlalchemy import Column, String, Integer, Boolean
-from sqlalchemy.orm import Session
-from database import Base
 
+from typing import Union, Optional, List
+
+from sqlalchemy.orm import Session
+
+from model import User
+from schema import UserSchema, get_db
 
 # FastAPI instance
 app = FastAPI()
 
 
-
-
-# http://127.0.0.1:8000/ 
+# http://127.0.0.1:8000/
 # Path Operation Decorator
 @app.get("/")
 # Path Operation Function
@@ -21,50 +19,42 @@ def read_root():
     return {"Hello": "World"}
 
 
-
-
 # Path Parameters
-"""
 
 # http://127.0.0.1:8000/blogs
 @app.get("/blogs")
 def display_blogs():
-    return {"data":{'blogs list'}}
+    return {"data": {'blogs list'}}
 
 
 # http://127.0.0.1:8000/blogs/unpublished
 @app.get("/blogs/unpublished")
 def display_unpublished_blogs():
-    return {"Unpublished Blogs":{'List of unpublished blogs'}}
-
-"""
-
-
+    return {"Unpublished Blogs": {'List of unpublished blogs'}}
 
 
 # Query Parameters
-"""
 
 # http://127.0.0.1:8000/blogs/5
 @app.get("/blogs/{b_id}")
-def get_blog_with_id(b_id:int):
-    return {"blog_id":b_id, "blog":"Blog Body"}
+def get_blog_with_id(b_id: int):
+    return {"blog_id": b_id, "blog": "Blog Body"}
 
 
 # http://127.0.0.1:8000/blogs/5/comments
 @app.get("/blogs/{b_id}/comments")
-def get_comments_blog_with_id(b_id:int):
-    return {"blog_id":b_id, "blog":"Blog Body" ,"comments":{'comments list'}}
+def get_comments_blog_with_id(b_id: int):
+    return {"blog_id": b_id, "blog": "Blog Body", "comments": {'comments list'}}
 
 
 # http://127.0.0.1:8000/limit/?limit=50&published=false
 # http://127.0.0.1:8000/limit/?limit=500&published=true
 @app.get("/limit/")
-def limit(limit:Optional[int]=50, published:Optional[bool]=False):
+def limit(limit: Optional[int] = 50, published: Optional[bool] = False):
     if published:
-        return {"data":f'{limit} published blogs from the db'}
+        return {"data": f'{limit} published blogs from the db'}
     else:
-        return {"data":f'{limit} blogs from the db'}
+        return {"data": f'{limit} blogs from the db'}
 
 
 # http://127.0.0.1:8000/items/5?q=5
@@ -97,12 +87,8 @@ def items(query1: Optional[List[str]] = Query(["foo", "bar"])):
     # Query([])
     return query1
 
-"""
-
-
 
 # Uses of Dependency Injection
-"""
 
 class CommonParam:
     def __init__(self, q: str, skip: int = 0, limit: int = 0):
@@ -129,41 +115,8 @@ async def read_users(commons: dict = Depends(common_param)):
 async def read_all(commons: CommonParam = Depends(CommonParam)):
     return {commons.q + (str)(commons.skip) + (str)(commons.limit)}
 
-"""
-
-
 
 #   sqlalchemy supports ORM = Object Relationship Mapping
-
-
-#   Model
-class User(Base):
-    __tablename__ = "users"
-    id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True)
-    is_active = Column(Boolean, default=True)
-
-
-#   Schema
-class UserSchema(BaseModel):
-    id: int
-    email: str
-    is_active: bool
-
-    class Config:
-        orm_mode = True
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-Base.metadata.create_all(bind=Engine)
-
 
 # Post data into DB
 @app.post("/users", response_model=UserSchema)
@@ -177,11 +130,3 @@ def post_user(user: UserSchema, db: Session = Depends(get_db)):
 @app.get("/users", response_model=List[UserSchema])
 def get_user(db: Session = Depends(get_db)):
     return db.query(User).all()
-
-
-
-
-
-
-
-
