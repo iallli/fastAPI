@@ -1,0 +1,22 @@
+Step: 1
+You should have python installed on your pc.
+
+
+Step: 2
+Create a virutal environment in your desired directory.
+virtualenv venv
+.\venv\Scripts\activate
+
+
+Step: 3
+Install necessary modules for your project.
+pip install fastapi
+pip install "uvicorn[standard]"
+
+
+Step: 4
+Create a "main.py" file in which we define our;
+1:	"FastAPI-app instance{app=FastAPI()}" 
+2:	Define routes 
+3:	Run the project.
+uvicorn main:app --reload
