@@ -1,11 +1,13 @@
-from fastapi import FastAPI, Query, Depends
+
+from fastapi import FastAPI, HTTPException, Query, Depends, status, Response
 
 from typing import Union, Optional, List
 
 from sqlalchemy.orm import Session
 
-from model import User
-from schema import UserSchema, get_db
+from models import Blog
+from schemas import BlogSchema, get_db
+
 
 # FastAPI instance
 app = FastAPI()
@@ -19,6 +21,7 @@ def read_root():
     return {"Hello": "World"}
 
 
+"""
 # Path Parameters
 
 # http://127.0.0.1:8000/blogs
@@ -115,18 +118,43 @@ async def read_users(commons: dict = Depends(common_param)):
 async def read_all(commons: CommonParam = Depends(CommonParam)):
     return {commons.q + (str)(commons.skip) + (str)(commons.limit)}
 
+"""
+
 
 #   sqlalchemy supports ORM = Object Relationship Mapping
 
 # Post data into DB
-@app.post("/users", response_model=UserSchema)
-def post_user(user: UserSchema, db: Session = Depends(get_db)):
-    u = User(email=user.email, is_active=user.is_active, id=user.id)
+@app.post("/blogs", status_code=status.HTTP_201_CREATED, response_model=BlogSchema)
+def post_blogs(user: BlogSchema, db: Session = Depends(get_db)):
+    u = Blog(id=user.id, title=user.title, body=user.body)
     db.add(u)
     db.commit()
+    db.refresh(u)
     return u
 
 # Get data from DB
-@app.get("/users", response_model=List[UserSchema])
-def get_user(db: Session = Depends(get_db)):
-    return db.query(User).all()
+
+
+@app.get("/blogs", status_code=200, response_model=List[BlogSchema])
+def get_blogs(response: Response, db: Session = Depends(get_db)):
+    return db.query(Blog).all()
+
+
+@app.get("/blogs/{b_id}", status_code=200, response_model=BlogSchema)
+def get_blogs(b_id, response: Response, db: Session = Depends(get_db)):
+    us = db.query(Blog).filter(Blog.id == b_id).first()
+    if not us:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"Blog with the id={b_id} not found.")
+    return us
+
+
+@app.delete("/blogs/{b_id1}")
+def delete_blog(b_id1: int, db: Session = Depends(get_db)):
+    us1 = db.query(Blog).filter(Blog.id == b_id1).delete(
+        synchronize_session=False)
+    db.commit()
+    if not us1:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"Blog with the id={b_id1} not found.")
+    return us1

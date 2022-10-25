@@ -2,13 +2,16 @@ from pydantic import BaseModel
 from database import Engine, SessionLocal, Base
 
 #   Schema
-class UserSchema(BaseModel):
+
+
+class BlogSchema(BaseModel):
     id: int
-    email: str
-    is_active: bool
+    title: str
+    body: str
 
     class Config:
         orm_mode = True
+
 
 def get_db():
     db = SessionLocal()

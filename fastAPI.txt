@@ -8,10 +8,13 @@ virtualenv venv
 .\venv\Scripts\activate
 
 
+
 Step: 3
 Install necessary modules for your project.
 pip install fastapi
+pip install uvicorn
 pip install "uvicorn[standard]"
+pip install sqlalchemy
 
 
 Step: 4
@@ -19,7 +22,8 @@ Create a "main.py" file in which we define our;
 1:	"FastAPI-app instance{app=FastAPI()}" 
 2:	Define APIs 
 3:	Run the Server.
-uvicorn main:app --reload
+	uvicorn main:app --reload
+
 
 
 Step: 5
@@ -29,3 +33,9 @@ git add .
 git commit -m "first-commit"
 publish on git
 
+
+
+Step: 6
+Create a requirements.txt file for your project.
+pip freeze > requirements.txt
+pip install -r requirements.txt
